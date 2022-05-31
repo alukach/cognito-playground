@@ -1,0 +1,7 @@
+boto3
+boto3-stubs[cognito-idp]
+pydantic[dotenv]
+requests
+authlib
+cachetools
+fastapi[all]
