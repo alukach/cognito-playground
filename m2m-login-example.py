@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This demonstrates how a service can authenticate with Cognito via
 the client_credentials flow.

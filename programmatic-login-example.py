@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 The represents how a user can authenticate with a Cogntio application
 within an interactive Python environment (e.g. Python Notebook)
@@ -5,12 +6,13 @@ within an interactive Python environment (e.g. Python Notebook)
 
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
-from dataclasses import dataclass, field
 import getpass
 import json
 import logging
 
 import boto3
+import dotenv
+from pydantic import BaseSettings, Field
 
 if TYPE_CHECKING:
     from mypy_boto3_cognito_idp.client import CognitoIdentityProviderClient
@@ -41,14 +43,15 @@ class AuthFailure(Exception):
     ...
 
 
-@dataclass
-class VedaAuthClient:
+class VedaAuthClient(BaseSettings):
     # username can be either email address or sub
-    username: str
+    username: str = Field(default_factory=lambda: input("Username: "))
     # password
-    password: str = field(default_factory=getpass.getpass, repr=False)
+    password: str = Field(default_factory=getpass.getpass, repr=False)
     # cognito app client identifier
-    app_client_id: str = field(default="g10237ndvrk0hp4mhnsd3t8jo", repr=False)
+    app_client_id: str = Field(
+        default_factory=lambda: input("Cognito App Client ID: "), repr=False
+    )
 
     # Manually provide an access token to skip logging-in when the client is initiated.
     access_token: Optional[str] = None
@@ -56,20 +59,12 @@ class VedaAuthClient:
     # Controls whether a we should automatically attempt to resolve challenges
     resolve_challenges: bool = True
 
-    # Allow injecting cognito client for easier testing
-    _cognito_client: Optional["CognitoIdentityProviderClient"] = field(
-        default=None, repr=False, hash=False
-    )
-
-    def __post_init__(self):
-        if not self.access_token:
-            self.login()
+    class Config:
+        env_file = ".env"
 
     @property
     def cognito_client(self) -> "CognitoIdentityProviderClient":
-        return self._cognito_client or boto3.client(
-            "cognito-idp", region_name="us-east-1"
-        )
+        return boto3.client("cognito-idp", region_name="us-east-1")
 
     def login(self) -> "InitiateAuthResponseTypeDef":
         try:
@@ -147,10 +142,6 @@ class VedaAuthClient:
             ClientId=self.app_client_id, Username=self.username
         )
 
-        # self.cognito_client.forgot_password(
-        #     ClientId=self.app_client_id, Username=self.username
-        # )
-
     def _resolve_password_reset(
         self, confirmation_code=None, new_password=None
     ) -> "InitiateAuthResponseTypeDef":
@@ -180,6 +171,7 @@ class VedaAuthClient:
 
 
 if __name__ == "__main__":
-    client = VedaAuthClient("anthony@developmentseed.org")
+    client = VedaAuthClient()
+    client.login()
     print(client.access_token)
     print(json.dumps(client.get_user()))

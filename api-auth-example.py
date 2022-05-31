@@ -19,6 +19,9 @@ token_scheme = security.HTTPBearer()
 class Settings(pydantic.BaseSettings):
     cognito_user_pool_id: str
 
+    class Config:
+        env_file = ".env"
+
     @property
     def jwks_url(self):
         """
