@@ -52,6 +52,7 @@ class VedaAuthClient(BaseSettings):
     client_id: str = Field(
         default_factory=lambda: input("Cognito App Client ID: "), repr=False
     )
+    client_region: str = "us-west-2"
 
     # Manually provide an access token to skip logging-in when the client is initiated.
     access_token: Optional[str] = None
@@ -64,7 +65,7 @@ class VedaAuthClient(BaseSettings):
 
     @property
     def cognito_client(self) -> "CognitoIdentityProviderClient":
-        return boto3.client("cognito-idp", region_name="us-east-1")
+        return boto3.client("cognito-idp", region_name=self.client_region)
 
     def login(self) -> "InitiateAuthResponseTypeDef":
         try:

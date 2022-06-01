@@ -65,7 +65,7 @@ File: `programmatic-login-example.py`
    - `username` - user email address or sub
    - `password` - user password
    - `client_id` - cognito app client identifier
-   - `app_client_id` - cognito app client identifier
+   - `client_region` - cognito user pool region
 
 #### Run
 
