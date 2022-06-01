@@ -49,7 +49,7 @@ class VedaAuthClient(BaseSettings):
     # password
     password: str = Field(default_factory=getpass.getpass, repr=False)
     # cognito app client identifier
-    app_client_id: str = Field(
+    client_id: str = Field(
         default_factory=lambda: input("Cognito App Client ID: "), repr=False
     )
 
@@ -69,7 +69,7 @@ class VedaAuthClient(BaseSettings):
     def login(self) -> "InitiateAuthResponseTypeDef":
         try:
             response = self.cognito_client.initiate_auth(
-                ClientId=self.app_client_id,
+                ClientId=self.client_id,
                 AuthFlow="USER_PASSWORD_AUTH",
                 AuthParameters={"USERNAME": self.username, "PASSWORD": self.password},
             )
@@ -125,7 +125,7 @@ class VedaAuthClient(BaseSettings):
             )
 
         response = self.cognito_client.respond_to_auth_challenge(
-            ClientId=self.app_client_id,
+            ClientId=self.client_id,
             Session=Session,
             ChallengeName=ChallengeName,
             ChallengeResponses=ChallengeResponse,
@@ -139,7 +139,7 @@ class VedaAuthClient(BaseSettings):
 
     def _init_password_reset(self):
         self.cognito_client.resend_confirmation_code(
-            ClientId=self.app_client_id, Username=self.username
+            ClientId=self.client_id, Username=self.username
         )
 
     def _resolve_password_reset(
@@ -151,7 +151,7 @@ class VedaAuthClient(BaseSettings):
         confirmation_code = confirmation_code or input("Confirmation code: ")
         new_password = new_password or getpass.getpass("New password: ")
         response = self.cognito_client.confirm_forgot_password(
-            ClientId=self.app_client_id,
+            ClientId=self.client_id,
             Username=self.username,
             ConfirmationCode=confirmation_code,
             Password=new_password,

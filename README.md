@@ -64,6 +64,7 @@ File: `programmatic-login-example.py`
 1. Optionally, setup environment variables (either in `.env` file or directly in environment; if unset, user will be prompted):
    - `username` - user email address or sub
    - `password` - user password
+   - `client_id` - cognito app client identifier
    - `app_client_id` - cognito app client identifier
 
 #### Run
